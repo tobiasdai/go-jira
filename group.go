@@ -169,7 +169,7 @@ func (s *GroupService) Remove(groupname string, username string) (*Response, err
 
 func (s *GroupService) GetGroups() ([]*GroupPick, *Response, error) {
 	apiEndpoint := fmt.Sprintf(
-		"/rest/api/2/group/picker?maxResults=%d", 9999,
+		"/rest/api/2/groups/picker?maxResults=%d", 9999,
 	)
 
 	req, err := s.client.NewRequest("GET", apiEndpoint, nil)
