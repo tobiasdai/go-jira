@@ -21,6 +21,14 @@ type groupMembersResult struct {
 	Members    []GroupMember `json:"values"`
 }
 
+type groupPickResponse struct {
+	Groups []*GroupPick `json:"groups"`
+}
+
+type GroupPick struct {
+	Name string `json:"name"`
+}
+
 // Group represents a JIRA group
 type Group struct {
 	ID                   string          `json:"id"`
@@ -153,4 +161,27 @@ func (s *GroupService) Remove(groupname string, username string) (*Response, err
 	}
 
 	return resp, nil
+}
+
+// Returns groups with substrings matching a given query.
+//
+// https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/groups-findGroups
+
+func (s *GroupService) GetGroups() ([]*GroupPick, *Response, error) {
+	apiEndpoint := fmt.Sprintf(
+		"/rest/api/2/group/picker?maxResults=%d", 9999,
+	)
+
+	req, err := s.client.NewRequest("GET", apiEndpoint, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	groupResp := new(groupPickResponse)
+	resp, err := s.client.Do(req, groupResp)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return groupResp.Groups, resp, nil
 }
