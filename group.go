@@ -185,3 +185,35 @@ func (s *GroupService) GetGroups() ([]*GroupPick, *Response, error) {
 
 	return groupResp.Groups, resp, nil
 }
+
+type GroupMembersUsers struct {
+	Size         int           `json:"size"`
+	MaxResults   int           `json:"max-results"`
+	StartIndex   int           `json:"start-index"`
+	EndIndex     int           `json:"end-index"`
+	GroupMembers []GroupMember `json:"items"`
+}
+
+type getGroupMembersResult struct {
+	Name   string            `json:"name"`
+	Self   string            `json:"self"`
+	Expand string            `json:"expand"`
+	Users  GroupMembersUsers `json:"users"`
+}
+
+// 使用group?groupname接口获取
+func (s *GroupService) GetGroupMembers(name string) ([]GroupMember, *Response, error) {
+	apiEndpoint := fmt.Sprintf("/rest/api/2/group?groupname=%s&expand=users", url.QueryEscape(name))
+	req, err := s.client.NewRequest("GET", apiEndpoint, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	group := new(getGroupMembersResult)
+	resp, err := s.client.Do(req, group)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return group.Users.GroupMembers, resp, nil
+}
